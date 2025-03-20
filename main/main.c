@@ -82,17 +82,25 @@ void oled_task(void *p) {
     while (1) {
         if (xSemaphoreTake(xSemaphoreTrigger, portMAX_DELAY) == pdTRUE) {
             float dist;
+            char buf[32];
             if (xQueueReceive(xQueueDistance, &dist, 0)) {
                 gfx_clear_buffer(&oled);
 
-                char buf[32];
-                snprintf(buf, sizeof(buf), "Dist: %.2f cm", dist);
-                gfx_draw_string(&oled, 0, 0, 1, buf);
-
-                int bar = dist < 100 ? dist : 100;
-                gfx_draw_line(&oled, 15, 27, 15 + bar, 27);
-
-                gfx_show(&oled);
+                if(dist > 400){
+                    snprintf(buf, sizeof(buf), "Falha");
+                    gfx_draw_string(&oled, 0, 0, 1, buf);
+                    gfx_show(&oled);
+                }
+                else{
+                    
+                    snprintf(buf, sizeof(buf), "Dist: %.2f cm", dist);
+                    gfx_draw_string(&oled, 0, 0, 1, buf);
+    
+                    int bar = dist < 100 ? dist : 100;
+                    gfx_draw_line(&oled, 15, 27, 15 + bar, 27);
+    
+                    gfx_show(&oled);
+                }
             }
         }
     }
